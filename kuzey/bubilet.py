@@ -66,9 +66,32 @@ if __name__ == "__main__":
 
     if result:
         df = pd.DataFrame(result)
-        file_path = "data/bubilet_istanbul_data.csv"
-        write_header = not os.path.exists(file_path)
-        df.to_csv(file_path, mode='a', header=write_header, index=False)
-        print("\n✅ CSV'ye veri eklendi → data/bubilet_istanbul_data.csv")
+        # Her çalıştırmada benzersiz bir dosya adı oluştur (sıralı)
+        folder = "data"
+        if not os.path.exists(folder):
+            os.makedirs(folder, exist_ok=True)
+
+        # Var olan dosyaları bul ve en yüksek numarayı tespit et
+        import re
+        existing_files = [f for f in os.listdir(folder) if re.match(r"bubilet_istanbul_data(_\d+)?\.csv$", f)]
+        max_index = 0
+        for fname in existing_files:
+            match = re.match(r"bubilet_istanbul_data_(\d+)\.csv$", fname)
+            if match:
+                idx = int(match.group(1))
+                if idx > max_index:
+                    max_index = idx
+            elif fname == "bubilet_istanbul_data.csv":
+                if max_index == 0:
+                    max_index = 1  # Eğer sadece ana dosya varsa, bir sonrakine 2 ver
+
+        # Yeni dosya adını belirle
+        if max_index == 0:
+            file_path = os.path.join(folder, "bubilet_istanbul_data_1.csv")
+        else:
+            file_path = os.path.join(folder, f"bubilet_istanbul_data_{max_index+1}.csv")
+
+        df.to_csv(file_path, index=False)
+        print(f"\n✅ CSV'ye veri eklendi → {file_path}")
     else:
         print("\n⚠️ Veri çekilemedi, CSV oluşturulmadı.")
