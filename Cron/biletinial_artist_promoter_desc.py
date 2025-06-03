@@ -238,6 +238,20 @@ def fetch_city_events(city_slug: str) -> List[Dict]:
 # ------------------------------------------------------------- #
 # 8. Upsert mantığı: Etkinlik + fiyat geçmişi
 # ------------------------------------------------------------- #
+def format_pg_array(value: Optional[str]) -> Optional[str]:
+    """
+    PostgreSQL array formatına uygun string döndürür: {"value"}
+    Eğer value boş veya None ise None döndürür.
+    Eğer zaten {…} ile başlıyorsa dokunmaz.
+    """
+    if not value:
+        return None
+    if value.startswith("{") and value.endswith("}"):
+        return value
+    escaped = value.replace('"', '\\"')
+    return f'{{"{escaped}"}}'
+
+
 def upsert_event_with_history(event: dict) -> None:
     """
     * Etkinlik var mı? Yoksa ekle, varsa güncelle.
@@ -282,8 +296,8 @@ def upsert_event_with_history(event: dict) -> None:
                 """,
                 {
                     "provider":    event["provider"],
-                    "artist":      event.get("artist", ""),
-                    "promoter":    event.get("promoter", ""),
+                    "artist":      format_pg_array(event.get("artist", "")),
+                    "promoter":    format_pg_array(event.get("promoter", "")),
                     "description": event.get("description", ""),
                     "now":         now,
                     "id":          event_id
@@ -305,8 +319,8 @@ def upsert_event_with_history(event: dict) -> None:
                     "name":        event["name"],
                     "venue":       event["venue"],
                     "date":        event["date"],
-                    "artist":      event.get("artist", ""),
-                    "promoter":    event.get("promoter", ""),
+                    "artist":      format_pg_array(event.get("artist", "")),
+                    "promoter":    format_pg_array(event.get("promoter", "")),
                     "description": event.get("description", ""),
                     "now":         now
                 }
