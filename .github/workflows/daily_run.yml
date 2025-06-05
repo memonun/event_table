@@ -2,8 +2,8 @@ name: Daily Scraper Run
 
 on:
   schedule:
-    - cron: '0 6 * * *'     # 09:00 TRT (06:00 UTC)
-    - cron: '50 20 * * *'   # 23:45 TRT (20:50 UTC)
+    - cron: '0 6 * * *'     # 09:00 TRT
+    - cron: '50 20 * * *'   # 23:50 TRT
   workflow_dispatch:
 
 jobs:
@@ -23,6 +23,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r Cron/requirements.txt
+
+    - name: Load .env variables
+      run: |
+        echo "Loading .env..."
+        export $(grep -v '^#' .env | xargs)
 
     - name: Run biletinial_artist_promoter_desc.py
       run: python Cron/biletinial_artist_promoter_desc.py
