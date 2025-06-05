@@ -27,8 +27,8 @@ jobs:
     - name: Run biletinial_artist_promoter_desc.py
       run: python Cron/biletinial_artist_promoter_desc.py
 
-    - name: Run biletix-muzik.py
-      run: python Cron/biletix-muzik.py
+#    - name: Run biletix-muzik.py
+#      run: python Cron/biletix-muzik.py
 
     - name: Run bubilet.py
       run: python Cron/bubilet.py
